@@ -6,7 +6,7 @@ Project Name
 [Your Project Name]
 
 Selected Track
-[Track Name – e.g., AI/ML, Web3, Healthcare, Sustainability, etc.]
+[Track Name – Smart Cities & On-Demand Service Marketplace]
 
 Selected Problem Statement (PS)
 [Problem Statement ID / Title]
