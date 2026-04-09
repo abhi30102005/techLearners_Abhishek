@@ -23,5 +23,4 @@ The platform offers a smooth, user-friendly experience with features like authen
 
 Problem: 
 🔗 Additional Links (Optional)
-https://github.com/abhi30102005/techLearners_Abhishek
 https://techlearners-abhishek.onrender.com
