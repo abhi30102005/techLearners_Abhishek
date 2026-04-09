@@ -7,25 +7,42 @@
 
 <body class="bg-gray-100 min-h-screen">
 
-<div class="max-w-5xl mx-auto mt-20 px-6">
+<div class="max-w-6xl mx-auto mt-20 px-6">
 
-    <h2 class="text-3xl font-extrabold mb-8">📜 Your Bookings</h2>
+    <h2 class="text-3xl font-extrabold mb-8 text-center">📜 Your Bookings</h2>
 
-    <div class="grid gap-6">
+    <div class="grid md:grid-cols-2 gap-6">
 
         {% for booking in bookings %}
 
-        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition border border-gray-100">
 
-            <!-- Booking Info -->
-            <p><strong>Provider:</strong> {{ booking.provider.name }}</p>
-            <p><strong>Service:</strong> {{ booking.provider.skill }}</p>
-            <p><strong>Time:</strong> {{ booking.time }}</p>
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">
+                    {{ booking.provider.name }}
+                </h3>
 
-            <!-- ⭐ REVIEW FORM -->
-            <form onsubmit="submitReview(event, {{ booking.id }})" class="mt-4 flex flex-wrap items-center gap-2">
-                
-                <select id="rating{{ booking.id }}" class="border p-2 rounded">
+                <span class="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full">
+                    Confirmed
+                </span>
+            </div>
+
+            <!-- DETAILS -->
+            <div class="space-y-2 text-gray-600">
+                <p><strong>Service:</strong> {{ booking.provider.skill }}</p>
+                <p><strong>Time:</strong> {{ booking.time }}</p>
+            </div>
+
+            <!-- DIVIDER -->
+            <div class="border-t my-4"></div>
+
+            <!-- ⭐ REVIEW SECTION -->
+            <form onsubmit="submitReview(event, {{ booking.id }})" 
+                  class="flex flex-col md:flex-row gap-3">
+
+                <select id="rating{{ booking.id }}" 
+                        class="border p-2 rounded w-full md:w-auto">
                     <option value="5">⭐⭐⭐⭐⭐</option>
                     <option value="4">⭐⭐⭐⭐</option>
                     <option value="3">⭐⭐⭐</option>
@@ -33,11 +50,13 @@
                     <option value="1">⭐</option>
                 </select>
 
-                <input type="text" id="comment{{ booking.id }}" 
-                       placeholder="Write review..." 
-                       class="border p-2 rounded flex-1 min-w-[150px]">
+                <input type="text" 
+                       id="comment{{ booking.id }}" 
+                       placeholder="Write your review..."
+                       class="border p-2 rounded flex-1">
 
-                <button class="bg-indigo-600 text-white px-4 py-2 rounded">
+                <button 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
                     Submit
                 </button>
 
@@ -47,7 +66,9 @@
 
         {% empty %}
 
-        <p class="text-center text-gray-500">No bookings yet</p>
+        <div class="col-span-2 text-center text-gray-500 text-lg">
+            No bookings yet 😔
+        </div>
 
         {% endfor %}
 
@@ -56,8 +77,23 @@
 </div>
 
 
-<!-- ✅ JAVASCRIPT (VERY IMPORTANT) -->
+<!-- ✅ JAVASCRIPT -->
 <script>
+
+function getCSRFToken() {
+    let cookieValue = null;
+    let cookies = document.cookie.split(';');
+
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.startsWith('csrftoken=')) {
+            cookieValue = cookie.substring('csrftoken='.length);
+        }
+    }
+
+    return cookieValue;
+}
+
 async function submitReview(event, bookingId) {
     event.preventDefault();
 
@@ -68,7 +104,8 @@ async function submitReview(event, bookingId) {
         const response = await fetch("/api/review/", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()   // ✅ FIXED
             },
             body: JSON.stringify({
                 booking_id: bookingId,
@@ -77,10 +114,12 @@ async function submitReview(event, bookingId) {
             })
         });
 
-        if (response.ok) {
-            alert("✅ Review added!");
+        const data = await response.json();
+
+        if (data.status) {
+            alert("✅ Review added successfully!");
         } else {
-            alert("❌ Error adding review");
+            alert("❌ Failed to add review");
         }
 
     } catch (error) {

@@ -6,7 +6,10 @@ import json
 from django.http import JsonResponse
 from .models import Provider, Booking
 from .models import Review
-
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from .models import Provider, Booking
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     skill = request.GET.get('skill')
@@ -58,9 +61,12 @@ def booking_history(request):
      "booking_history.html", {"bookings": bookings})
 
 
+
+@login_required
 def book_service(request):
     if request.method == "POST":
         data = json.loads(request.body)
+
         provider_id = data.get("provider_id")
         time = data.get("time")
 
@@ -73,7 +79,6 @@ def book_service(request):
         )
 
         return JsonResponse({"status": "success"})
-    
 
 def add_review(request):
     if request.method == "POST":

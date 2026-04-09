@@ -14,4 +14,6 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view()),
     path('api/review/', views.add_review),
     path('become-pro/', views.add_provider),
+    path('booking-history/', views.booking_history),
+    
 ]
