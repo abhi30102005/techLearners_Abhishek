@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Provider Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-100 via-white to-purple-100 min-h-screen">
+
+<div class="max-w-6xl mx-auto px-6 py-12">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-10">
+        <h1 class="text-3xl font-extrabold text-slate-800">
+            🧑‍🔧 Dashboard
+        </h1>
+
+        <a href="/" class="bg-indigo-600 text-white px-5 py-2 rounded-xl shadow">
+            ← Home
+        </a>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-sm text-slate-500">Total Bookings</p>
+            <h2 class="text-2xl font-bold text-indigo-600">
+                {{ total_bookings }}
+            </h2>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-sm text-slate-500">Total Earnings</p>
+            <h2 class="text-2xl font-bold text-green-600">
+            ₹{{ total_earnings }}
+        </h2>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-sm text-slate-500">Status</p>
+            <h2 class="text-2xl font-bold text-purple-600">
+                Active
+            </h2>
+        </div>
+
+    </div>
+
+    <!-- BOOKINGS LIST -->
+    <div class="bg-white p-6 rounded-3xl shadow-lg">
+
+        <h2 class="text-xl font-bold mb-6">📋 Recent Bookings</h2>
+
+        <div class="space-y-4">
+
+            {% for booking in bookings %}
+
+            <div class="flex justify-between items-center p-4 border rounded-xl hover:bg-indigo-50 transition">
+
+                <div>
+                    <p class="font-bold text-slate-800">
+                        {{ booking.user.username }}
+                    </p>
+                    <p class="text-sm text-slate-500">
+                        {{ booking.time }}
+                    </p>
+                </div>
+
+                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                    Confirmed
+                </span>
+
+            </div>
+
+            {% empty %}
+            <p class="text-center text-gray-500 py-6">
+                No bookings yet 🚫
+            </p>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

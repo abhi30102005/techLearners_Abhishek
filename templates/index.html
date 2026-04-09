@@ -44,9 +44,32 @@
             <a onclick="switchPage('services')" class="cursor-pointer hover:text-indigo-600 transition-colors">Services</a>
             <a onclick="switchPage('about')" class="cursor-pointer hover:text-indigo-600 transition-colors">About Us</a>
         </div>
-        <button class="bg-slate-900 text-white px-6 py-2 rounded-full hover:bg-indigo-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 text-sm font-semibold">
+        <a href="/become-pro/" class="bg-indigo-600 text-white px-6 py-2 rounded-full">
             Become a Pro
-        </button>
+        </a>
+        <div class="flex gap-3 items-center">
+
+    {% if user.is_authenticated %}
+        <span class="text-sm font-semibold text-slate-700">
+            👋 {{ user.username }}
+        </span>
+
+        <a href="/logout/" 
+           class="bg-red-500 text-white px-4 py-2 rounded-full text-sm">
+           Logout
+        </a>
+
+    {% else %}
+        <a href="/login/" class="px-4 py-2 border rounded-full text-sm">
+            Login
+        </a>
+
+        <a href="/signup/" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-sm">
+            Signup
+        </a>
+    {% endif %}
+
+</div>
     </nav>
 
     <main class="flex-grow">
@@ -103,10 +126,44 @@
                     <h2 class="text-4xl font-extrabold text-slate-900 mb-4">Available Professionals</h2>
                     <p class="text-slate-500 text-lg">Select a verified expert in your area to schedule your session.</p>
                 </div>
+                <div class="max-w-2xl mx-auto mb-8">
+                    <input type="text" placeholder="Search services..."
+                    class="w-full p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex justify-center gap-3 mb-10">
+                    <div class="flex justify-center gap-3 mb-10">
+
+                        <div class="flex justify-center gap-3 mb-10">
+
+    <button onclick="filterProviders('all')" 
+        class="px-4 py-2 bg-indigo-600 text-white rounded-full">
+        All
+    </button>
+
+    <button onclick="filterProviders('plumber')" 
+        class="px-4 py-2 bg-white border rounded-full">
+        Plumber
+    </button>
+
+    <button onclick="filterProviders('tutor')" 
+        class="px-4 py-2 bg-white border rounded-full">
+        Tutor
+    </button>
+
+    <button onclick="filterProviders('electrician')" 
+        class="px-4 py-2 bg-white border rounded-full">
+        Electrician
+    </button>
+
+</div>
+
+                </div>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {% for provider in providers %}
-                    <div class="glass rounded-3xl p-6 border border-white transition-all duration-500 card-hover group">
+                    <div class="provider-card glass rounded-3xl p-6 border border-white transition-all duration-500 card-hover group"
+     data-skill="{{ provider.skill|lower }}">
                         <div class="flex justify-between items-start mb-6">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-inner border border-white relative">
@@ -117,7 +174,11 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold text-slate-900">{{ provider.name }}</h3>
+                                    <span class="text-green-500 text-xs font-bold">✔ Verified</span>
                                     <div class="flex items-center gap-1 text-sm text-slate-500 mt-0.5">
+                                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full mt-1 inline-block">
+                                            ⚡ Available Now
+                                        </span>
                                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                         {{ provider.location }}
                                     </div>
@@ -280,42 +341,76 @@
 
         // THE REAL BACKEND MAGIC HAPPENS HERE
         async function confirmBooking() {
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "Saving to database...";
-            btn.disabled = true;
 
-            try {
-                // Send data secretly to Django API
-                const response = await fetch('/api/book/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        provider_id: currentProviderId, 
-                        time: "10:00 AM" // Hardcoded for demo speed
-                    })
-                });
+                // ✅ CHECK LOGIN
+                const isLoggedIn = "{{ user.is_authenticated }}" === "True";
 
-                if (response.ok) {
-                    closeModal();
-                    toast.classList.remove('hidden');
-                    toast.classList.add('toast-enter');
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                        toast.classList.remove('toast-enter');
-                    }, 4000);
+                if (!isLoggedIn) {
+                    alert("Please login first!");
+                    window.location.href = "/login/";
+                    return;
                 }
-            } catch (error) {
-                alert("Error connecting to database!");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "Saving...";
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/book/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            provider_id: currentProviderId,
+                            time: "10:00 AM"
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert("Booking confirmed!");
+                    }
+                } catch (error) {
+                    alert("Error!");
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
             }
-        }
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
+        modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+});
+
+// ✅ FILTER FUNCTION ADDED HERE
+function filterProviders(skill) {
+    const cards = document.querySelectorAll(".provider-card");
+
+    cards.forEach(card => {
+        const providerSkill = card.getAttribute("data-skill");
+
+        if (skill === "all" || providerSkill.includes(skill)) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+        function filterProviders(skill) {
+    const cards = document.querySelectorAll(".provider-card");
+
+    cards.forEach(card => {
+        const providerSkill = card.getAttribute("data-skill");
+
+        if (skill === "all" || providerSkill.includes(skill)) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
     </script>
 </body>
 </html>

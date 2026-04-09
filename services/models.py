@@ -1,25 +1,34 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+# Service Provider
 class Provider(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=100)
-    skill = models.CharField(max_length=50)
-    rate = models.CharField(max_length=20)
-    rating = models.CharField(max_length=10)
-    reviews = models.IntegerField(default=0)
+    skill = models.CharField(max_length=100)
+    rate = models.CharField(max_length=50)
     location = models.CharField(max_length=100)
-    available = models.BooleanField(default=True)
-    avatar_initials = models.CharField(max_length=2)
 
     def __str__(self):
         return self.name
 
-# NEW: The table that actually saves the user's booking
+
+# Booking Model
 class Booking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
-    customer_name = models.CharField(max_length=100, default="Guest User")
-    time_slot = models.CharField(max_length=50)
-    status = models.CharField(max_length=20, default="Pending")
+    time = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Booking: {self.provider.name} at {self.time_slot}"
+        return f"{self.user.username} -> {self.provider.name}"
+    
+class Review(models.Model):
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
+
+    rating = models.IntegerField()  # 1–5
+    comment = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)

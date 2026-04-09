@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Booking History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+<div class="max-w-5xl mx-auto mt-20 px-6">
+
+    <h2 class="text-3xl font-extrabold mb-8">📜 Your Bookings</h2>
+
+    <div class="grid gap-6">
+
+        {% for booking in bookings %}
+
+        <div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+
+            <!-- Booking Info -->
+            <p><strong>Provider:</strong> {{ booking.provider.name }}</p>
+            <p><strong>Service:</strong> {{ booking.provider.skill }}</p>
+            <p><strong>Time:</strong> {{ booking.time }}</p>
+
+            <!-- ⭐ REVIEW FORM -->
+            <form onsubmit="submitReview(event, {{ booking.id }})" class="mt-4 flex flex-wrap items-center gap-2">
+                
+                <select id="rating{{ booking.id }}" class="border p-2 rounded">
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="1">⭐</option>
+                </select>
+
+                <input type="text" id="comment{{ booking.id }}" 
+                       placeholder="Write review..." 
+                       class="border p-2 rounded flex-1 min-w-[150px]">
+
+                <button class="bg-indigo-600 text-white px-4 py-2 rounded">
+                    Submit
+                </button>
+
+            </form>
+
+        </div>
+
+        {% empty %}
+
+        <p class="text-center text-gray-500">No bookings yet</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+<!-- ✅ JAVASCRIPT (VERY IMPORTANT) -->
+<script>
+async function submitReview(event, bookingId) {
+    event.preventDefault();
+
+    const rating = document.getElementById("rating" + bookingId).value;
+    const comment = document.getElementById("comment" + bookingId).value;
+
+    try {
+        const response = await fetch("/api/review/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                booking_id: bookingId,
+                rating: rating,
+                comment: comment
+            })
+        });
+
+        if (response.ok) {
+            alert("✅ Review added!");
+        } else {
+            alert("❌ Error adding review");
+        }
+
+    } catch (error) {
+        alert("⚠️ Server error");
+    }
+}
+</script>
+
+</body>
+</html>

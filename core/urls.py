@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django.urls import path
-from services.views import home, book_service
+from django.urls import path, include   # ✅ include added
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home, name='home'),
-    path('api/book/', book_service, name='book_service'), # NEW API ROUTE
+    path('', include('services.urls')),   # ✅ connect your app
 ]
